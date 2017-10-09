@@ -333,7 +333,7 @@ $signature = @"
 			if (hresult != 0) {
 				if (hresult == S_FALSE) {
 					assmblies = System.Linq.Enumerable.ToList(result);
-					assmblies.Sort(StringComparer.Ordinal);
+					assmblies.Sort(StringComparer.OrdinalIgnoreCase);
 					return 0;
 				}
 				return hresult;
@@ -404,7 +404,7 @@ $signature = @"
 		while (fusionName != null);
 
 		assmblies = System.Linq.Enumerable.ToList(result);
-		assmblies.Sort(StringComparer.Ordinal);
+		assmblies.Sort(StringComparer.OrdinalIgnoreCase);
 		return 0;
 	}
 
