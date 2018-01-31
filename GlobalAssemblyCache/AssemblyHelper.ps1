@@ -783,7 +783,7 @@ function Uninstall-Assembly() {
     [Parameter(
         Position=1,
         Mandatory=$true,
-        ValueFromPipeline=$false,
+        ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$false)
     ]
     [string]$name)
