@@ -731,7 +731,7 @@ function Install-Assembly() {
     [Parameter(
         Position=1,
         Mandatory=$true,
-        ValueFromPipeline=$false,
+        ValueFromPipeline=$true,
         ValueFromPipelineByPropertyName=$false)
     ]
     [string]$path)
