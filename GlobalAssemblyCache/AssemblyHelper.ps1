@@ -2,7 +2,7 @@
 # Script: AssemblyHelper.ps1 
 # Author: Ewout van der Linden
 # Date: 23-09-2013
-# Updated: 08-10-2017
+# Updated: 31-01-2018
 # -----------------------------------------------------------------------------
 
 $signature = @"
@@ -898,6 +898,9 @@ function Uninstall-Assemblies() {
 			if ($references.Count -eq 0) {
 				$toRemove += $assembly;
 			}
+			else {
+				Write-Host "Skipping $($assembly) with install references" -foreground yellow
+			}
 		}
 		
 		$failed = $false;
@@ -912,6 +915,7 @@ function Uninstall-Assemblies() {
 			}
 			else {
 				if ($num -eq 0 -and $disposition -eq $nm::IASSEMBLYCACHE_UNINSTALL_DISPOSITION_UNINSTALLED) {
+					Write-Host "Uninstalled $($assembly)"
 					$result++;
 					continue;
 				}
