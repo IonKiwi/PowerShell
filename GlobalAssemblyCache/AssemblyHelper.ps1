@@ -2,7 +2,7 @@
 # Script: AssemblyHelper.ps1 
 # Author: Ewout van der Linden
 # Date: 23-09-2013
-# Updated: 31-01-2018
+# Updated: 04-03-2018
 # -----------------------------------------------------------------------------
 
 $signature = @"
@@ -620,8 +620,8 @@ function Get-AssemblyInstallReferences() {
     [Parameter(
         Position=1,
         Mandatory=$true,
-        ValueFromPipeline=$false,
-        ValueFromPipelineByPropertyName=$true)
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$false)
     ]
     [string]$name)
 	
@@ -873,6 +873,13 @@ function Uninstall-Assemblies() {
         ValueFromPipeline=$false,
         ValueFromPipelineByPropertyName=$true)
     ]
+    [switch]$silent,
+	[Parameter(
+        Position=4,
+        Mandatory=$false,
+        ValueFromPipeline=$false,
+        ValueFromPipelineByPropertyName=$true)
+    ]
     [boolean]$exactNameMatch = $false)
 	
 	process {
@@ -915,7 +922,9 @@ function Uninstall-Assemblies() {
 			}
 			else {
 				if ($num -eq 0 -and $disposition -eq $nm::IASSEMBLYCACHE_UNINSTALL_DISPOSITION_UNINSTALLED) {
-					Write-Host "Uninstalled $($assembly)"
+					if (!$silent) {
+						Write-Host "Uninstalled $($assembly)"
+					}
 					$result++;
 					continue;
 				}
