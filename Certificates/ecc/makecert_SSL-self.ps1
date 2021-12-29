@@ -148,7 +148,7 @@ function Create-SelfSignedSSL() {
     		[string]$filename,
 	[Parameter(
 	        Position=6,
-        	Mandatory=$true,
+        	Mandatory=$false,
         	ValueFromPipeline=$false,
         	ValueFromPipelineByPropertyName=$true)]
     		[string]$password
@@ -182,11 +182,20 @@ New-Item $indexFile -ItemType file | Out-Null
 $num = $nm::WriteToFile("$indexFile.attr", "unique_subject = no");
 $num = $nm::WriteTemplate($workPath, $targetConfig, $subjectName, $clientAuth, $dnsNames, $ipNames);
 try {
+	$noPassword = !$password
+	if (!$password) {
+		$password = "8sYWjtvMWgcVSq35GK9qrp4rqmdWd6vf"
+	}
 	$num = $nm::WriteToFile($passFile1, $password);
 	
 	& $openssl ecparam -name P-384 -genkey -param_enc named_curve -out $outKeyFile1 # secp384r1
 	& $openSSL  req -x509 -key $outKeyFile1 -days 7300 -config $targetConfig -out $outFile -passout file:endpwd
-	& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile1 -CSP $csp -keyex -out $resultFile1 -passout file:endpwd
+	if (!$noPassword) {
+		& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile1 -CSP $csp -keyex -out $resultFile1 -passout file:endpwd
+	}
+	else {
+		& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile1 -CSP $csp -keyex -out $resultFile1 -passout pass:
+	}
 	& $openSSL  x509 -outform der -in $outFile -out $resultFile2
 }
 finally {

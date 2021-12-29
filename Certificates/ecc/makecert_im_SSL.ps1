@@ -160,7 +160,7 @@ function Create-EndCertificate() {
     		[string]$filename,
 	[Parameter(
 	        Position=8,
-        	Mandatory=$true,
+        	Mandatory=$false,
         	ValueFromPipeline=$false,
         	ValueFromPipelineByPropertyName=$true)]
     		[string]$password
@@ -200,6 +200,10 @@ New-Item $indexFile -ItemType file | Out-Null
 $num = $nm::WriteToFile("$indexFile.attr", "unique_subject = no");
 $num = $nm::WriteTemplate($workPath, $targetConfig, $subjectName, $clientAuth, $dnsNames, $ipNames);
 try {
+	$noPassword = !$password
+	if (!$password) {
+		$password = "8sYWjtvMWgcVSq35GK9qrp4rqmdWd6vf"
+	}
 	$num = $nm::WriteToFile($passFile1, $imPassword);
 	$num = $nm::WriteToFile($passFile2, $password);
 	
@@ -210,7 +214,12 @@ try {
 	& $openSSL  req -new -config $targetConfig -key $outKeyFile1 -out $outRequestFile -passin file:serverpwd
 	& $openSSL  ca -batch -create_serial -config $targetConfig -days 5475 -notext -in $outRequestFile -out $outFile -passin file:imendpwd
 	
-	& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile1 -CSP $csp -keyex -out $resultFile1 -passout file:serverpwd
+	if (!$noPassword) {
+		& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile1 -CSP $csp -keyex -out $resultFile1 -passout file:serverpwd
+	}
+	else {
+		& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile1 -CSP $csp -keyex -out $resultFile1 -passout pass:
+	}
 	& $openSSL  x509 -outform der -in $outFile -out $resultFile2
 }
 finally {

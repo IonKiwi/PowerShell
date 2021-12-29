@@ -151,7 +151,7 @@ function Create-SelfSignedSSL() {
     		[string]$filename,
 	[Parameter(
 	        Position=6,
-        	Mandatory=$true,
+        	Mandatory=$false,
         	ValueFromPipeline=$false,
         	ValueFromPipelineByPropertyName=$true)]
     		[string]$password
@@ -186,11 +186,19 @@ New-Item $indexFile -ItemType file | Out-Null
 $num = $nm::WriteToFile("$indexFile.attr", "unique_subject = no");
 $num = $nm::WriteTemplate($workPath, $targetConfig, $subjectName, $clientAuth, $dnsNames, $ipNames);
 try {
+	$noPassword = !$password
+	if (!$password) {
+		$password = "8sYWjtvMWgcVSq35GK9qrp4rqmdWd6vf"
+	}
 	$num = $nm::WriteToFile($passFile1, $password);
 	
 	& $openSSL  req -x509 -newkey rsa -days 7300 -config $targetConfig -out $outFile -passout file:endpwd
 	& $openSSL  rsa -in $outKeyFile1 -out $outKeyFile2 -passin file:endpwd
-	& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile2 -CSP $csp -keyex -out $resultFile1 -passout file:endpwd
+	if (!$noPassword) {
+		& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile2 -CSP $csp -keyex -out $resultFile1 -passout file:endpwd
+	} else {
+		& $openSSL  pkcs12 -export -in $outFile -inkey $outKeyFile2 -CSP $csp -keyex -out $resultFile1 -passout pass:
+	}
 	& $openSSL  x509 -outform der -in $outFile -out $resultFile2
 }
 finally {
